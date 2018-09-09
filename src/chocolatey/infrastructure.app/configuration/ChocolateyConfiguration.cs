@@ -441,6 +441,7 @@ NOTE: Hiding sensitive configuration data! Please double and triple
         }
 
         public string TemplateName { get; set; }
+        public string TemplateDir { get; set; }
         public string Name { get; set; }
         public bool AutomaticPackage { get; set; }
         public IDictionary<string, string> TemplateProperties { get; private set; }

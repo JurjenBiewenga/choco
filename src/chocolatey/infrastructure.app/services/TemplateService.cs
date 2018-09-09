@@ -117,7 +117,7 @@ namespace chocolatey.infrastructure.app.services
             {
                 configuration.NewCommand.TemplateName = string.IsNullOrWhiteSpace(configuration.NewCommand.TemplateName) ? "default" : configuration.NewCommand.TemplateName;
 
-                var templatePath = _fileSystem.combine_paths(ApplicationParameters.TemplatesLocation, configuration.NewCommand.TemplateName);
+                var templatePath = _fileSystem.combine_paths(get_template_location(configuration), configuration.NewCommand.TemplateName);
                 if (!_fileSystem.directory_exists(templatePath)) throw new ApplicationException("Unable to find path to requested template '{0}'. Path should be '{1}'".format_with(configuration.NewCommand.TemplateName, templatePath));
 
                 this.Log().Info(configuration.QuietOutput ? logger : ChocolateyLoggers.Important, "Generating package from custom template at '{0}'.".format_with(templatePath));
@@ -142,6 +142,21 @@ namespace chocolatey.infrastructure.app.services
             this.Log().Info(configuration.QuietOutput ? logger : ChocolateyLoggers.Important,
                 "Successfully generated {0}{1} package specification files{2} at '{3}'".format_with(
                     configuration.NewCommand.Name, configuration.NewCommand.AutomaticPackage ? " (automatic)" : string.Empty, Environment.NewLine, packageLocation));
+        }
+
+        public string get_template_location(ChocolateyConfiguration configuration)
+        {
+            if (!string.IsNullOrWhiteSpace(configuration.NewCommand.TemplateDir))
+            {
+                if (_fileSystem.directory_exists(configuration.NewCommand.TemplateDir))
+                {
+                    return configuration.NewCommand.TemplateDir;
+                }
+
+                this.Log().Error("{0} is not a valid directory");
+            }
+
+            return ApplicationParameters.TemplatesLocation;
         }
 
         public void generate_file_from_template(ChocolateyConfiguration configuration, TemplateValues tokens, string template, string fileLocation, Encoding encoding)
